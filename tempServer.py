@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """
 Very simple HTTP server in python.
 Usage::
@@ -12,24 +12,20 @@ Send a POST request::
 """
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
-
-img_index = 0
+import json
+import subprocess
 
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
-        #self.send_header('Content-type', 'text/html')
         self.send_header('Content-type', 'text/json')
         self.end_headers()
 
     def do_GET(self):
-	global img_index
         self._set_headers()
-	file_index = str(img_index+1) if (img_index < 10) else '-1'
-        self.wfile.write(file_index)
-	print 'Image index:', file_index
-	img_index += 1
-	
+	temp_json = getLastTemp()
+	print temp_json
+	self.wfile.write(temp_json)
 
     def do_HEAD(self):
         self._set_headers()
@@ -44,6 +40,12 @@ def run(server_class=HTTPServer, handler_class=S, port=3000):
     httpd = server_class(server_address, handler_class)
     print 'Starting httpd...'
     httpd.serve_forever()
+
+
+def getLastTemp():
+    line = subprocess.check_output("tail -n 1 temp.log", shell=True)
+    j = json.loads(line)
+    return json.dumps(j)
 
 if __name__ == "__main__":
     from sys import argv
