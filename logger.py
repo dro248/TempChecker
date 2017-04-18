@@ -17,4 +17,4 @@ while True:
     f = open("temp.log", "a+")
     f.write(json_string + '\n')
     f.close()
-    time.sleep(5)    
+    time.sleep(1)
