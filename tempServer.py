@@ -18,6 +18,8 @@ import subprocess
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
+	#self.send_header('Access-Control-Allow-Origin', '192.168.1.101:3000')
+	self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Content-type', 'text/json')
         self.end_headers()
 
