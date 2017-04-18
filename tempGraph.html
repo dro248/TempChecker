@@ -1,27 +1,109 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta http-equiv="Access-Control-Allow-Origin" content="*"/>
+<script src="http://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </head>
 <body>
 
-<h1>The XMLHttpRequest Object</h1>
-
-<button type="button" onclick="loadDoc()">Request data</button>
-
-<p id="demo"></p>
-
+<div id="chartContainer" style="height:100%">
 
 <script>
-function loadDoc() {
-  var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("demo").innerHTML = this.responseText;
+var chart;
+window.onload = function () {
+	chart = new CanvasJS.Chart("chartContainer", {
+		theme: "theme1",//theme1
+		title:{
+			text: "Server Temperatures"              
+		},
+		animationEnabled: false,   // change to true
+		data: [              
+		{
+			// Change type to "bar", "area", "spline", "pie",etc.
+			type: "line",
+			dataPoints: [
+				{ label: "time0",  y: 0 },
+				{ label: "time1",  y: 0 },
+				{ label: "time2",  y: 0 },
+				{ label: "time3",  y: 0 },
+				{ label: "time4",  y: 0 },
+				{ label: "time5",  y: 0 },
+				{ label: "time6",  y: 0 },
+				{ label: "time7",  y: 0 },
+				{ label: "time8",  y: 0 },
+				{ label: "time9",  y: 0 }
+			]
+		}
+		]
+	});
+	chart.render();
+}
+
+// rerender loop
+var value = 0;
+
+var serverData = [0,0,0,0,0,0,0,0,0,0];
+
+var iFrequency = 1000; // expressed in miliseconds
+var myInterval = 0;
+startLoop();
+
+// STARTS and Resets the loop if any
+function startLoop() {
+    if(myInterval > 0) clearInterval(myInterval);  // stop
+    myInterval = setInterval( "updateData()", iFrequency );  // run
+}
+
+function updateData(){
+		// Shift data left
+		serverData[0] = serverData[1];
+		serverData[1] = serverData[2];
+		serverData[2] = serverData[3];
+		serverData[3] = serverData[4];
+		serverData[4] = serverData[5];
+		serverData[5] = serverData[6];
+		serverData[6] = serverData[7];
+		serverData[7] = serverData[8];
+		serverData[8] = serverData[9];		
+
+		// Get temp data from Server
+		getTemperature();
+
+    console.log(serverData[9]);
+
+    // Set Chart Data
+    chart.data[0].dataPoints[0].y = (serverData[0] === null) ? 0 : parseInt(serverData[0]['temp']);
+    chart.data[0].dataPoints[1].y = (serverData[1] === null) ? 0 : parseInt(serverData[1]['temp']);
+    chart.data[0].dataPoints[2].y = (serverData[2] === null) ? 0 : parseInt(serverData[2]['temp']);
+    chart.data[0].dataPoints[3].y = (serverData[3] === null) ? 0 : parseInt(serverData[3]['temp']);
+    chart.data[0].dataPoints[4].y = (serverData[4] === null) ? 0 : parseInt(serverData[4]['temp']);
+    chart.data[0].dataPoints[5].y = (serverData[5] === null) ? 0 : parseInt(serverData[5]['temp']);
+    chart.data[0].dataPoints[6].y = (serverData[6] === null) ? 0 : parseInt(serverData[6]['temp']);
+    chart.data[0].dataPoints[7].y = (serverData[7] === null) ? 0 : parseInt(serverData[7]['temp']);
+    chart.data[0].dataPoints[8].y = (serverData[8] === null) ? 0 : parseInt(serverData[8]['temp']);
+    chart.data[0].dataPoints[9].y = (serverData[9] === null) ? 0 : parseInt(serverData[9]['temp']);
+
+
+    // Set Labels
+    for(var i = 0; i < serverData.length; i++){
+    	chart.data[0].dataPoints[i].label = (serverData[0] === null) ? 0 : serverData[i]['datetime'];
     }
-  };
+
+    chart.render();
+}
+
+
+// Ajax Calls to server
+function getTemperature() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function () {
+      if (xhttp.readyState === 4 && xhttp.status === 200){
+      	serverData[9] = JSON.parse(this.responseText);
+      }
+  }
+
   xhttp.open("GET", "http://192.168.1.101:3000/", true);
   xhttp.send();
+  
 }
 </script>
 
